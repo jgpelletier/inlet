@@ -1,3 +1,4 @@
+
 function Window () {
     this.count = 0
     this.sum = 0
@@ -7,6 +8,16 @@ function Window () {
 
 Window.prototype.sample = function (value) {
     // increment count and sum, add value to head.
+    this.count++
+    this.sum += value
+    var node = {
+        when: Date.now,
+        value: value,
+        next: this.head.next,
+        previous: this.head
+    }
+    this.head.next = node
+    node.next.previous = node
 }
 
 Window.prototype.__defineGetter__('stats', function () {
