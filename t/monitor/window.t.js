@@ -7,5 +7,5 @@ function prove (assert) {
     metric.sample(1)
     metric.sample(2)
     metric.sample(3)
-    assert(metric.stats, { average: 0 }, 'stats')
+    assert(metric.stats, { average: 2 }, 'stats')
 }

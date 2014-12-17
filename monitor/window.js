@@ -24,10 +24,15 @@ Window.prototype.__defineGetter__('stats', function () {
     // purge expired values, calculate average.
     // node === this.head
 
-    this.head.previous = this.head.previous.previous
-    this.head.previous.next = this.head.next
+    while ((this.head.next.when - this.head.previous.when) > 60000) {
+        value = this.head.previous.value
+        this.head.previous = this.head.previous.previous
+        this.head.previous.next = this.head.next
+        this.count--
+        this.sum -= value
+    }
 
-    return { average: 0 }
+    return { average: this.sum/this.count }
 })
 
 module.exports = Window
