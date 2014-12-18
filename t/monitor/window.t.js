@@ -1,5 +1,5 @@
 
-require('../proof')(2, prove)
+require('../proof')(3, prove)
 
 function prove (assert) {
     var Window = require('../../monitor/window')
