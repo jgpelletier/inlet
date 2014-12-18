@@ -7,7 +7,6 @@ function Window () {
 }
 
 Window.prototype.sample = function (value) {
-    // increment count and sum, add value to head.
     this.count++
     this.sum += value
     var node = {
@@ -21,18 +20,17 @@ Window.prototype.sample = function (value) {
 }
 
 Window.prototype.__defineGetter__('stats', function () {
-    // purge expired values, calculate average.
-    // node === this.head
 
-    while ((this.head.next.when - this.head.previous.when) > 60000) {
+    while (Date.now() - this.head.previous.when) {
         value = this.head.previous.value
         this.head.previous = this.head.previous.previous
-        this.head.previous.next = this.head.next
+        this.head.previous.next = this.head
         this.count--
         this.sum -= value
     }
 
-    return { average: this.sum/this.count }
+    if ( this.count == 0 ) return null
+    else return { average: this.sum/this.count }
 })
 
 module.exports = Window
