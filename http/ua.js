@@ -14,15 +14,15 @@ function UserAgent (log) {
     this._tokens = {}
 }
 
-UserAgent.averages = {
+UserAgent.durations = {
     1: new Window(6000),
     5: new Window(30000),
     15: new Window(90000)
 }
 
 function collectAverages (stopwatch) {
-    for (var key in UserAgent.averages) {
-       UserAgent.averages[key].sample(Date.now() - stopwatch)
+    for (var key in UserAgent.durations) {
+       UserAgent.durations[key].sample(Date.now() - stopwatch)
     }
 }
 
