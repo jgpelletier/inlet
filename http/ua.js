@@ -20,9 +20,9 @@ UserAgent.durations = {
     15: new Window(90000)
 }
 
-function collectAverages (stopwatch) {
+function collectAverages (time) {
     for (var key in UserAgent.durations) {
-       UserAgent.durations[key].sample(Date.now() - stopwatch)
+       UserAgent.durations[key].sample(time)
     }
 }
 
@@ -161,7 +161,7 @@ UserAgent.prototype.fetch = cadence(function (step) {
             client.end()
 
         }, function (errors, error) {
-            collectAverages(stopwatch)
+            collectAverages(Date.now() - stopwatch)
             var body = new Buffer(JSON.stringify({ message: error.message, errno: error.code }))
             var response = {
                 statusCode: 599,
@@ -187,7 +187,7 @@ UserAgent.prototype.fetch = cadence(function (step) {
             step(function () {
                 response.pipe(accum(step(null)))
             }, function (body) {
-                collectAverages(stopwatch)
+                collectAverages(Date.now() - stopwatch)
                 var parsed = body
                 var display = null
                 var type = typer.parse(response.headers['content-type'] || 'application/octet-stream')
