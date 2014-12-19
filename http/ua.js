@@ -6,11 +6,18 @@ var logger = require('../monitor/logger')('http.ua')
 var Binder = require('../net/binder')
 var typer = require('media-typer')
 var accum = require('accum')
+var Window = require('../monitor/window')
 var __slice = [].slice
 
 function UserAgent (log) {
     this._log = arguments.length == 0 ? true : log
     this._tokens = {}
+}
+
+UserAgent.averages = {
+    1: new Window(6000),
+    5: new Window(30000),
+    15: new Window(90000)
 }
 
 UserAgent.prototype.fetch = cadence(function (step) {
@@ -131,6 +138,8 @@ UserAgent.prototype.fetch = cadence(function (step) {
         if (payload) {
             request.options.headers['content-length'] = payload.length
         }
+
+        var stopwatch = Date.now()
         var fetch = step([function () {
             var client = http.request(request.options, step(null))
                              .on('error', step(Error))
@@ -143,6 +152,11 @@ UserAgent.prototype.fetch = cadence(function (step) {
                 })
             }
             client.end()
+
+            for (var key in UserAgent.averages) {
+               UserAgent.averages[key].sample(Date.now() - stopwatch)
+            }
+
         }, function (errors, error) {
             var body = new Buffer(JSON.stringify({ message: error.message, errno: error.code }))
             var response = {
