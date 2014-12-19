@@ -20,6 +20,12 @@ UserAgent.averages = {
     15: new Window(90000)
 }
 
+function collectAverages (stopwatch) {
+    for (var key in UserAgent.averages) {
+       UserAgent.averages[key].sample(Date.now() - stopwatch)
+    }
+}
+
 UserAgent.prototype.fetch = cadence(function (step) {
     var request = {
         options: { headers: {} }
@@ -151,11 +157,8 @@ UserAgent.prototype.fetch = cadence(function (step) {
                     client.abort()
                 })
             }
-            client.end()
 
-            for (var key in UserAgent.averages) {
-               UserAgent.averages[key].sample(Date.now() - stopwatch)
-            }
+            client.end()
 
         }, function (errors, error) {
             var body = new Buffer(JSON.stringify({ message: error.message, errno: error.code }))
@@ -176,6 +179,9 @@ UserAgent.prototype.fetch = cadence(function (step) {
                 statusCode: response.statusCode,
                 headers: response.headers
             })
+
+            collectAverages(stopwatch)
+
             return [ fetch, JSON.parse(body.toString()), response, body ]
         }], function (response) {
             step(function () {
@@ -205,6 +211,13 @@ UserAgent.prototype.fetch = cadence(function (step) {
                 if (request.grant == 'cc' && response.statusCode == 401) {
                     delete this._tokens[request.key]
                 }
+
+                for (var key in UserAgent.averages) {
+                   UserAgent.averages[key].sample(Date.now() - stopwatch)
+                }
+
+                collectAverages(stopwatch)
+
                 return [ parsed, response, body ]
             })
         })(1)
