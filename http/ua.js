@@ -161,6 +161,7 @@ UserAgent.prototype.fetch = cadence(function (step) {
             client.end()
 
         }, function (errors, error) {
+            collectAverages(stopwatch)
             var body = new Buffer(JSON.stringify({ message: error.message, errno: error.code }))
             var response = {
                 statusCode: 599,
@@ -180,10 +181,10 @@ UserAgent.prototype.fetch = cadence(function (step) {
                 headers: response.headers
             })
 
-            collectAverages(stopwatch)
 
             return [ fetch, JSON.parse(body.toString()), response, body ]
         }], function (response) {
+            collectAverages(stopwatch)
             step(function () {
                 response.pipe(accum(step(null)))
             }, function (body) {
@@ -211,13 +212,6 @@ UserAgent.prototype.fetch = cadence(function (step) {
                 if (request.grant == 'cc' && response.statusCode == 401) {
                     delete this._tokens[request.key]
                 }
-
-                for (var key in UserAgent.averages) {
-                   UserAgent.averages[key].sample(Date.now() - stopwatch)
-                }
-
-                collectAverages(stopwatch)
-
                 return [ parsed, response, body ]
             })
         })(1)
