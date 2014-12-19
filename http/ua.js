@@ -184,10 +184,10 @@ UserAgent.prototype.fetch = cadence(function (step) {
 
             return [ fetch, JSON.parse(body.toString()), response, body ]
         }], function (response) {
-            collectAverages(stopwatch)
             step(function () {
                 response.pipe(accum(step(null)))
             }, function (body) {
+                collectAverages(stopwatch)
                 var parsed = body
                 var display = null
                 var type = typer.parse(response.headers['content-type'] || 'application/octet-stream')
